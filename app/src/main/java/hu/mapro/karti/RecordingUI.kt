@@ -9,7 +9,11 @@ import android.view.Gravity.END
 import android.view.ViewManager
 import android.widget.Button
 import android.widget.EditText
+import hu.mapro.karti.data.Card
+import hu.mapro.karti.data.Recording
+import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.ActorJob
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
@@ -131,6 +135,41 @@ class EditorPage {
     lateinit var cancel: Button
     lateinit var save: Button
 
+    suspend fun doSave(activity: Activity) {
+        val db = activity.database
+
+        fun textOf(editor: SideEditor) : String? {
+            val txt = editor.text.text.toString()
+            return if (txt.isBlank()) null
+            else txt
+        }
+
+        fun saveRecording(editor: SideEditor) : Long? {
+            val data = editor.recording.recording
+
+            return if (data == null) {
+                null
+            } else {
+                db.recordingDao().insert(
+                        Recording(data)
+                )
+            }
+
+        }
+
+        async(CommonPool) {
+            db.cardDao().insert(
+                    Card(
+                            questionText = textOf(question),
+                            questionRecordingId = saveRecording(question),
+                            answerText = textOf(answer),
+                            answerRecordingId = saveRecording(answer)
+                    )
+            )
+        }.await()
+
+    }
+
     suspend fun startRecording(activity: Activity, channel: Channel<EditorPageEvent>, side: Side) {
         save.isEnabled = false
         val c = side.controls(this@EditorPage).recording
@@ -237,6 +276,12 @@ class EditorPage {
                             activity.finish()
                             return
                         }
+                        is SaveEvent -> {
+                            doSave(activity)
+                            activity.finish()
+                            return
+                        }
+
                     }
                 }
             }
@@ -255,6 +300,10 @@ class EditorPage {
                     is CancelEvent -> {
                         activity.finish()
                     }
+                    is SaveEvent -> {
+                        doSave(activity)
+                        activity.finish()
+                    }
                 }
 
                 if (activity.isFinishing) {
@@ -266,6 +315,9 @@ class EditorPage {
 
         cancel.onClick {
             a.offer(CancelEvent)
+        }
+        save.onClick {
+            a.offer(SaveEvent)
         }
 
         question.setup(a, Question)
@@ -291,3 +343,4 @@ object CancelEvent : EditorPageEvent()
 class RecordEvent(val side: Side) : EditorPageEvent()
 class PlayEvent(val side: Side) : EditorPageEvent()
 object PlayComplete : EditorPageEvent()
+object SaveEvent : EditorPageEvent()
