@@ -11,7 +11,10 @@ import hu.mapro.karti.data.AppDatabase
  */
 class KartiApplication : Application() {
     val database: AppDatabase by lazy {
-        Room.databaseBuilder(this, AppDatabase::class.java, "karti").build()
+        Room
+                .databaseBuilder(this, AppDatabase::class.java, "karti")
+                .allowMainThreadQueries()
+                .build()
     }
 
 }

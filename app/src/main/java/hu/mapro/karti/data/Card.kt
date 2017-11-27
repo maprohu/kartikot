@@ -1,5 +1,7 @@
 package hu.mapro.karti.data
 
+import android.arch.lifecycle.LiveData
+import android.arch.paging.LivePagedListProvider
 import android.arch.persistence.room.*
 
 /**
@@ -19,14 +21,14 @@ import android.arch.persistence.room.*
             )
         )
 )
-class Card(
+data class Card(
         var questionText :String?,
         var questionRecordingId: Long?,
         var answerText: String?,
-        var answerRecordingId: Long?
+        var answerRecordingId: Long?,
+        @PrimaryKey(autoGenerate = true)
+        var id: Long = 0
 ) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0
 }
 
 @Dao
@@ -34,6 +36,16 @@ interface CardDao {
     @Insert
     fun insert(item: Card): Long
 
+    @Update
+    fun update(item: Card)
+
     @Query("select count(*) from card")
-    fun count(): Long
+    fun count(): LiveData<Long>
+
+    @Query("select * from card order by id desc")
+    fun list(): LivePagedListProvider<Int, Card>
+
+    @Query("select * from card where id = :id")
+    fun get(id: Long): Card
+
 }

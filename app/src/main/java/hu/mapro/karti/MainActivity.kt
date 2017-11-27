@@ -1,5 +1,6 @@
 package hu.mapro.karti
 
+import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
@@ -42,14 +43,21 @@ class MainActivity : AppCompatActivity() {
                 weight = 1f
             }
             button("Browse") {
-                launch(CommonPool) {
-                    restart.consumeEach {
-                        val c = database.cardDao().count()
-
-                        launch(UI) {
-                            text = "Browse (${c})"
+                database.cardDao().count().observe(
+                        this@MainActivity,
+                        Observer {
+                            text = "Browse (${it})"
                         }
-                    }
+                )
+
+                onClick {
+                    startActivity(
+                            Intent(
+                                    this@MainActivity,
+                                    BrowseActivity::class.java
+                            )
+                    )
+
                 }
             }.lparams(
                     width = matchParent,
@@ -63,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                     startActivity(
                             Intent(
                                     this@MainActivity,
-                                    CreateActivity::class.java
+                                    EditActivity::class.java
                             )
                     )
                 }

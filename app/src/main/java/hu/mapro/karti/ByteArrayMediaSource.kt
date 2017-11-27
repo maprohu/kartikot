@@ -12,6 +12,10 @@ class ByteArrayMediaSource(private val data: ByteArray) : MediaDataSource() {
                     (data.size - position).toInt()
                 else size
 
+        if (count < 0) {
+            return 0
+        }
+
         System.arraycopy(
                 data,
                 position.toInt(),
