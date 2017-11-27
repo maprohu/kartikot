@@ -17,6 +17,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import hu.mapro.karti.data.Card
+import hu.mapro.karti.data.Practice
 import hu.mapro.karti.data.Recording
 import hu.mapro.karti.data.RecordingDao
 import kotlinx.coroutines.experimental.CommonPool
@@ -128,6 +129,9 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
                 .setPositiveButton(
                         "Yes",
                         { dialog, which ->
+                            app.database.practiceDao().delete(
+                                    Practice(id = cardId!!)
+                            )
                             app.database.cardDao().delete(
                                     Card(id = cardId!!)
                             )
@@ -268,6 +272,7 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
                 when (event) {
                     is PlayEvent -> {
                         if (event.side == state.side) {
+                            audioState.value = Idle
                             return true
                         } else {
                             state.stopPlayer()

@@ -12,7 +12,8 @@ import hu.mapro.karti.SingletonHolder
 @Database(
         entities = arrayOf(
                 Recording::class,
-                Card::class
+                Card::class,
+                Practice::class
         ),
         version = 1,
         exportSchema = false
@@ -20,5 +21,6 @@ import hu.mapro.karti.SingletonHolder
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recordingDao(): RecordingDao
     abstract fun cardDao(): CardDao
+    abstract fun practiceDao(): PracticeDao
 }
 

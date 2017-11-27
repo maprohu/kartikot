@@ -51,4 +51,24 @@ interface CardDao {
     @Delete
     fun delete(item: Card)
 
+    @Query(
+            """
+                select
+                    c.*
+                from
+                    card c
+                    left join
+                        practice p
+                    on
+                        c.id = p.id
+                where
+                    p.id is null
+                order by
+                    c.id
+                limit
+                    1
+            """
+    )
+    fun nextNew(): List<Card>
+
 }
