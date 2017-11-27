@@ -1,12 +1,15 @@
 package hu.mapro.karti
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.media.MediaPlayer
 import android.media.MediaRecorder
@@ -15,6 +18,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import hu.mapro.karti.data.Card
 import hu.mapro.karti.data.Recording
+import hu.mapro.karti.data.RecordingDao
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
@@ -117,6 +121,29 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
     val app: Application
         get() = getApplication()
 
+    suspend fun doDelete(context: Context) {
+        AlertDialog.Builder(context)
+                .setTitle("Delete")
+                .setMessage("Do you want to delete this card?")
+                .setPositiveButton(
+                        "Yes",
+                        { dialog, which ->
+                            app.database.cardDao().delete(
+                                    Card(id = cardId!!)
+                            )
+                            question.delete(app.database.recordingDao())
+                            answer.delete(app.database.recordingDao())
+                            proc.offer(CancelEvent)
+                        }
+                )
+                .setNegativeButton(
+                        "No",
+                        { dialog, which ->  }
+                )
+                .show()
+
+    }
+
     suspend fun doSave() {
         val db = app.database
 
@@ -196,6 +223,9 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
                         recorder.stop()
                         return false
                     }
+                    is DeleteEvent -> {
+                        doDelete(event.context)
+                    }
                 }
             }
 
@@ -255,6 +285,9 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
                         doSave()
                         return false
                     }
+                    is DeleteEvent -> {
+                        doDelete(event.context)
+                    }
                 }
             }
 
@@ -270,6 +303,10 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
                 is RecordEvent -> startRecording(channel, event.side)
                 is PlayEvent -> startPlaying(channel, event.side)
                 is CancelEvent -> false
+                is DeleteEvent -> {
+                    doDelete(event.context)
+                    true
+                }
                 is SaveEvent -> {
                     doSave()
                     false
@@ -295,6 +332,12 @@ class SideModel {
     var recording : ByteArray? = null
     var text : String? = null
     var recordingId : Long? = null
+
+    fun delete(dao: RecordingDao) {
+        if (recordingId != null) {
+            dao.delete(Recording(ByteArray(0), recordingId!!))
+        }
+    }
 }
 
 sealed class AudioState

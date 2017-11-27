@@ -36,7 +36,17 @@ class MainActivity : AppCompatActivity() {
             toolbar {
                 title = "Karti"
             }
-            button("Practice").lparams(
+            button("Practice") {
+                onClick {
+                    startActivity(
+                            Intent(
+                                    this@MainActivity,
+                                    PracticeActivity::class.java
+                            )
+                    )
+
+                }
+            }.lparams(
                     width = matchParent,
                     height = 0
             ) {

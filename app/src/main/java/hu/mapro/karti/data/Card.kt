@@ -22,10 +22,10 @@ import android.arch.persistence.room.*
         )
 )
 data class Card(
-        var questionText :String?,
-        var questionRecordingId: Long?,
-        var answerText: String?,
-        var answerRecordingId: Long?,
+        var questionText :String? = null,
+        var questionRecordingId: Long? = null,
+        var answerText: String? = null,
+        var answerRecordingId: Long? = null,
         @PrimaryKey(autoGenerate = true)
         var id: Long = 0
 ) {
@@ -47,5 +47,8 @@ interface CardDao {
 
     @Query("select * from card where id = :id")
     fun get(id: Long): Card
+
+    @Delete
+    fun delete(item: Card)
 
 }

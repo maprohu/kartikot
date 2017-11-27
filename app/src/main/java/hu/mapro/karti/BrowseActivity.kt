@@ -26,6 +26,10 @@ import org.jetbrains.anko.sdk25.coroutines.onClick
 
 class BrowseActivity : AppCompatActivity() {
 
+    enum class Ids {
+        Recycler
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,6 +54,7 @@ class BrowseActivity : AppCompatActivity() {
                 )
             }
             recyclerView {
+                id = Ids.Recycler.ordinal
                 layoutManager = LinearLayoutManager(
                         act,
                         VERTICAL,
@@ -239,7 +244,7 @@ class BrowseModel(application: Application) : AndroidViewModel(application) {
 
         init {
             currentPlaying.value = sideId
-            
+
             player.setDataSource(
                     ByteArrayMediaSource(
                             getApplication<Application>()

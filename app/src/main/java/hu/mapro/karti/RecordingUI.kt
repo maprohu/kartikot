@@ -2,6 +2,7 @@ package hu.mapro.karti
 
 import android.app.Activity
 import android.arch.lifecycle.Observer
+import android.content.Context
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity.END
@@ -133,6 +134,13 @@ fun Activity.editorPage(aca: AppCompatActivity, model: EditViewModel) {
             backgroundColor = Color.CYAN
             elevation = dip(4).toFloat()
             linearLayout {
+                if (model.cardId != null) {
+                    button("Delete") {
+                        onClick {
+                            model.proc.offer(DeleteEvent(ctx))
+                        }
+                    }
+                }
                 button("Cancel") {
                     onClick {
                         model.proc.offer(CancelEvent)
@@ -177,6 +185,7 @@ object Answer : Side() {
 
 sealed class EditorPageEvent
 object CancelEvent : EditorPageEvent()
+class DeleteEvent(val context: Context) : EditorPageEvent()
 class RecordEvent(val side: Side) : EditorPageEvent()
 class PlayEvent(val side: Side) : EditorPageEvent()
 object PlayComplete : EditorPageEvent()

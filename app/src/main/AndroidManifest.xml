@@ -15,17 +15,21 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".EditActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="audio/ogg; codecs=opus" />
             </intent-filter>
         </activity>
-        <activity android:name=".BrowseActivity"/>
+        <activity android:name=".BrowseActivity" />
+        <activity android:name=".PracticeActivity"></activity>
     </application>
 
 </manifest>
