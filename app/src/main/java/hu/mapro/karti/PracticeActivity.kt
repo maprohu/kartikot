@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.ShapeDrawable
@@ -37,6 +38,27 @@ class PracticeActivity : AppCompatActivity() {
         verticalLayout{
             toolbar {
                 title = "Practice Karti"
+
+                val editItem = menu.add("Edit")
+
+                model.state.observe(
+                        this@PracticeActivity,
+                        Observer {
+                            editItem.isEnabled =
+                                    it is PracticeLoaded
+                        }
+                )
+
+                editItem.setOnMenuItemClickListener { item ->
+                    finish()
+
+                    val i = Intent(ctx, EditActivity::class.java)
+                    i.putExtra(EditActivity.CARD_ID, model.state.value!!.item!!.card.id)
+                    ctx.startActivity(i)
+
+                    true
+                }
+
             }
 
             verticalLayout {

@@ -5,6 +5,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
+import android.widget.Toast
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
@@ -13,6 +15,7 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.consumeEach
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +38,24 @@ class MainActivity : AppCompatActivity() {
         verticalLayout {
             toolbar {
                 title = "Karti"
+
+                val backup = menu.add("Backup")
+                backup.setOnMenuItemClickListener {
+                    application
+                            .database
+                            .close()
+
+                    val dbFile = context.getDatabasePath(application.database.openHelper.databaseName)
+                    val outPath = "${Environment.getExternalStorageDirectory()}/karti_backup.db"
+
+                    dbFile.copyTo(File(outPath), true)
+
+                    Toast.makeText(this@MainActivity, "Backed up to: ${outPath}", Toast.LENGTH_SHORT)
+
+                    finishAffinity()
+
+                    true
+                }
             }
             button("Practice") {
                 onClick {
