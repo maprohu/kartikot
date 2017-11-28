@@ -12,10 +12,6 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.sdk25.coroutines.textChangedListener
 
-
-//inline val AppCompatActivity.aca: AppCompatActivity
-//    get() = this
-
 fun EditText.textOrNull() : String? {
     val txt = this.text.toString()
     return if (txt.isBlank()) null
@@ -78,8 +74,17 @@ fun ViewManager.recordingControls(aca: AppCompatActivity, model: EditViewModel, 
                                 else -> "Play"
                             }
                             isEnabled =
-                                    sideModel.recording != null &&
+                                    sideModel.recording.value != null &&
                                             it !is RecordingState
+                        }
+                )
+                sideModel.recording.observe(
+                        aca,
+                        Observer {
+                            isEnabled =
+                                    it != null &&
+                                            model.audioState.value !is RecordingState
+
                         }
                 )
                 onClick {
@@ -121,7 +126,18 @@ fun ViewManager.recordingControls(aca: AppCompatActivity, model: EditViewModel, 
                 height = wrapContent
         )
 
-        menu.add("Copy")
+        val paste = menu.add("Paste")
+        paste.isEnabled = false
+        aca.karti.clipboard.observe(
+                aca,
+                Observer {
+                    paste.isEnabled = it != null
+                }
+        )
+        paste.setOnMenuItemClickListener {
+            sideModel.recording.value = aca.karti.clipboard.value
+            true
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package hu.mapro.karti
 
 import android.app.Application
+import android.arch.lifecycle.MutableLiveData
 import android.arch.persistence.room.Room
 import android.content.Context
 import android.content.ContextWrapper
@@ -17,10 +18,15 @@ class KartiApplication : Application() {
                 .build()
     }
 
+    val clipboard = MutableLiveData<ByteArray>()
+
 }
 
-val Context.database
+val Context.karti
     get() =
         generateSequence(applicationContext) {
             (it as? ContextWrapper)?.baseContext
-        }.filterIsInstance<KartiApplication>().first().database
+        }.filterIsInstance<KartiApplication>().first()
+
+val Context.database
+    get() = karti.database

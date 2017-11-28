@@ -23,9 +23,7 @@
         <activity android:name=".EditActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="audio/ogg; codecs=opus" />
             </intent-filter>
         </activity>

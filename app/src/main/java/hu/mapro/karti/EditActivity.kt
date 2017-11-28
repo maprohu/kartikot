@@ -55,7 +55,7 @@ class EditActivity : AppCompatActivity() {
 
                 if (card.questionRecordingId != null) {
                     model.question.recordingId = card.questionRecordingId
-                    model.question.recording =
+                    model.question.recording.value =
                             application
                                     .database
                                     .recordingDao()
@@ -64,7 +64,7 @@ class EditActivity : AppCompatActivity() {
                 }
                 if (card.answerRecordingId != null) {
                     model.answer.recordingId = card.answerRecordingId
-                    model.answer.recording =
+                    model.answer.recording.value =
                             application
                                     .database
                                     .recordingDao()
@@ -76,8 +76,9 @@ class EditActivity : AppCompatActivity() {
             if (Intent.ACTION_SEND == intent.action) {
                 val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
 
-                model.answer.recording =
-                        contentResolver.openInputStream(uri).use { it.readBytes() }
+                val bytes = contentResolver.openInputStream(uri).use { it.readBytes() }
+                model.answer.recording.value = bytes
+                karti.clipboard.value = bytes
             }
 
         }
@@ -177,9 +178,9 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
             val card =
                     Card(
                             questionText = question.text,
-                            questionRecordingId = saveRecording(question.recordingId, question.recording),
+                            questionRecordingId = saveRecording(question.recordingId, question.recording.value),
                             answerText = answer.text,
-                            answerRecordingId = saveRecording(answer.recordingId, answer.recording),
+                            answerRecordingId = saveRecording(answer.recordingId, answer.recording.value),
                             id = cardId ?: 0L
                     )
 
@@ -216,7 +217,7 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
                 when (event) {
                     is RecordEvent -> {
                         recorder.stop()
-                        side.model.recording = file.readBytes()
+                        side.model.recording.value = file.readBytes()
                         file.delete()
 
                         audioState.value = Idle
@@ -249,7 +250,7 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
                 audioState.value = PlayingState(s)
 
                 player.setDataSource(
-                        ByteArrayMediaSource(side.model.recording!!)
+                        ByteArrayMediaSource(side.model.recording.value!!)
                 )
                 player.prepare()
                 player.start()
@@ -334,7 +335,7 @@ class EditViewModel(application: Application) : AndroidViewModel(application) {
 }
 
 class SideModel {
-    var recording : ByteArray? = null
+    val recording = MutableLiveData<ByteArray>()
     var text : String? = null
     var recordingId : Long? = null
 
