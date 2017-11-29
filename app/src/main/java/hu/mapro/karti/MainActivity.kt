@@ -56,6 +56,18 @@ class MainActivity : AppCompatActivity() {
 
                     true
                 }
+
+                val headless = menu.add("Headless Practice")
+                headless.setOnMenuItemClickListener {
+                    startActivity(
+                            Intent(
+                                    this@MainActivity,
+                                    HeadlessPracticeActivity::class.java
+                            )
+                    )
+
+                    true
+                }
             }
             button("Practice") {
                 onClick {

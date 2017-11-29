@@ -3,6 +3,7 @@
     package="hu.mapro.karti">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -23,12 +24,18 @@
         <activity android:name=".EditActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="audio/ogg; codecs=opus" />
             </intent-filter>
         </activity>
         <activity android:name=".BrowseActivity" />
-        <activity android:name=".PracticeActivity"></activity>
+        <activity android:name=".PracticeActivity" />
+        <activity android:name=".HeadlessPracticeActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+        </activity>
     </application>
 
 </manifest>

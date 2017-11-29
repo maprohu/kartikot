@@ -71,4 +71,28 @@ interface CardDao {
     )
     fun nextNew(): List<Card>
 
+    @Query(
+            """
+                select
+                    c.*
+                from
+                    card c
+                    left join
+                        practice p
+                    on
+                        c.id = p.id
+                where
+                    p.id is null
+                    and
+                    c.questionRecordingId is not null
+                    and
+                    c.answerRecordingId is not null
+                order by
+                    c.id
+                limit
+                    1
+            """
+    )
+    fun nextNewHeadless(): List<Card>
+
 }

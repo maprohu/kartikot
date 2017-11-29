@@ -121,7 +121,31 @@ interface PracticeDao {
     @Delete
     fun delete(item: Practice)
 
-    @Query("select * from practice where next <= :ts limit 1")
+    @Query("select * from practice where next <= :ts order by next limit 1")
     fun nextDue(ts: Long = System.currentTimeMillis()): List<Practice>
+
+    @Query(
+            """
+                select
+                    p.*
+                from
+                    practice p
+                    inner join
+                        card c
+                    on
+                        p.id = c.id
+                where
+                    p.next <= :ts
+                    and
+                    c.questionRecordingId is not null
+                    and
+                    c.answerRecordingId is not null
+                order by
+                    p.next
+                limit
+                    1
+            """
+    )
+    fun nextDueHeadless(ts: Long = System.currentTimeMillis()): List<Practice>
 
 }
