@@ -8,6 +8,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.media.AudioManager
@@ -55,7 +56,18 @@ class HeadlessPracticeActivity : AppCompatActivity() {
         model.end.observe(
                 this,
                 Observer {
-                    if (it == true) finish()
+                    when (it) {
+                        Leave.Edit -> {
+                            val i = Intent(ctx, EditActivity::class.java)
+                            i.putExtra(EditActivity.CARD_ID, model.item.value!!.card.id)
+                            ctx.startActivity(i)
+                            finish()
+                        }
+                        Leave.Close -> {
+                            finish()
+                        }
+
+                    }
                 }
         )
 
@@ -185,7 +197,8 @@ class HeadlessModel(val app: Application) : AndroidViewModel(app) {
     val item = MutableLiveData<PracticeItem>()
     val flipped = MutableLiveData<Boolean>()
     val bright = MutableLiveData<Boolean>()
-    val end = MutableLiveData<Boolean>()
+    val end = MutableLiveData<Leave>()
+    val audioManager = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     fun click(b: Buttons) {
         when {
@@ -197,9 +210,13 @@ class HeadlessModel(val app: Application) : AndroidViewModel(app) {
                 beep(0)
                 bright.value = true
             }
+            b == Buttons.Y -> {
+                beep(0)
+                end.value = Leave.Edit
+            }
             b == Buttons.A -> {
                 beep(0)
-                end.value = true
+                end.value = Leave.Close
             }
             item.value == null -> {
                 beep(ToneGenerator.TONE_SUP_BUSY, 2000)
@@ -213,12 +230,18 @@ class HeadlessModel(val app: Application) : AndroidViewModel(app) {
                     flipped.value = true
                     beep(0)
                     play(item.value!!.card.answerRecordingId!!)
+                } else if (b == Buttons.L1) {
+                    audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND)
+                    beep(0)
+                } else if (b == Buttons.R1) {
+                    audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND)
+                    beep(0)
                 } else if (flipped.value == true) {
                     when (b) {
-                        Buttons.Up -> feedback(PracticeResult.Easy)
-                        Buttons.Right -> feedback(PracticeResult.Good)
-                        Buttons.Down -> feedback(PracticeResult.Hard)
-                        Buttons.Left -> feedback(PracticeResult.Again)
+                        Buttons.Down -> feedback(PracticeResult.Easy)
+                        Buttons.Left -> feedback(PracticeResult.Good)
+                        Buttons.Up -> feedback(PracticeResult.Hard)
+                        Buttons.Right -> feedback(PracticeResult.Again)
                         else -> beep(1)
                     }
                 } else {
@@ -323,4 +346,9 @@ class HeadlessModel(val app: Application) : AndroidViewModel(app) {
         bright.value = false
         load()
     }
+}
+
+enum class Leave {
+    Close,
+    Edit
 }
